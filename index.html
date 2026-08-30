@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      GitHub Pages cannot set response headers, but the meta form of CSP still
+      applies to everything below. This app has no backend and no analytics; the
+      only outbound requests it ever makes are OpenStreetMap tiles and Nominatim
+      lookups, and both are off until the user turns them on. Pinning that here
+      means a future dependency cannot quietly start phoning somewhere else.
+      (frame-ancestors is deliberately absent — it is ignored in meta form and
+      would only log an error; blocking framing needs a real response header,
+      which static hosting cannot send.)
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               base-uri 'self';
+               object-src 'none';
+               form-action 'none';
+               script-src 'self';
+               style-src 'self' 'unsafe-inline';
+               font-src 'self' data:;
+               img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org;
+               connect-src 'self' data: blob: https://nominatim.openstreetmap.org;"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      name="description"
+      content="Build print-ready PACE emergency communications reference cards — a fold card, a Brother QL-500 thermal label, and a full plan — from one shared document. Everything stays in your browser."
+    />
+    <title>PACE reference card builder</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # The repository's hard constraint, checked before anything else so a
+      # leak fails fast and loudly.
+      - name: No sensitive content committed
+        run: npm run check:clean
+
+      - run: npm run typecheck
+
+      - run: npm test
+
+      - run: npm run build
+
+      # Built output is scanned too: a leak that only reaches the bundle is
+      # still published.
+      - name: No sensitive content in the build
+        run: npm run check:clean
+
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      # The raster comparison lives here. It renders the label two independent
+      # ways and diffs them, which is how "a rasterizer that mis-measures text
+      # will silently wrap a line" stops being something we have to remember to
+      # check by eye.
+      - run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
